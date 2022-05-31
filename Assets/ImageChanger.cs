@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,12 +10,14 @@ public class ImageChanger : MonoBehaviour
     public string LocationOfImagesQR;
     public string LocationOfImagesArUco;
     public string LocationOfBackgrounds;
+    public GameObject LocationToSaveImages;
+    public GameObject LocationToSaveTxts;
     public Sprite CurrentSprite;
     public Image OwnerImage;
     public Image Background;
     public Image DarkPanel;
     public GameObject Owner;
-    public int SizeOfSet;
+    public GameObject SizeOfSet;
 
     public Camera Camera;
 
@@ -29,27 +32,50 @@ public class ImageChanger : MonoBehaviour
     private Sprite[] _Sprites;
     private Sprite[] _SpritesArUco;
     private Sprite[] _Backgrounds;
+    private int _numOfImages;
+    private string _imgPath;
+    private string _txtPath;
+    private bool _isStarted = false;
 
     #region Unity
 
     // Start is called before the first frame update
     void Start()
     {
-        this.counter = 0;
-        this.loadImages();
-        this.loadBackground();
-        this.setStartImage(this._Sprites[0]);
+        counter = 0;
+        loadImages();
+        loadBackground();
+        setStartImage(this._Sprites[0]);
     }
 
     // Update is called once per frame
     void Update()
     {
-        this.upadteImage();
+        if (_isStarted)
+            upadteImage();
     }
 
     #endregion Unity
 
+    #region Public methods
+
+    public void OnCreateClicked()
+    {
+        readInputsAndStart();
+    }
+
+    #endregion Public methods
+
     #region Private methods
+
+    private void readInputsAndStart()
+    {
+        _numOfImages = int.Parse(this.SizeOfSet.GetComponent<TMP_InputField>().text);
+        _imgPath = LocationToSaveImages.GetComponent<TMP_InputField>().text;
+        _txtPath = LocationToSaveTxts.GetComponent<TMP_InputField>().text;
+        _isStarted = true;
+
+    }
 
     private void loadImages()
     {
@@ -95,7 +121,7 @@ public class ImageChanger : MonoBehaviour
 
     private void upadteImage()
     {
-        if (this.SizeOfSet <= this.counter)
+        if (_numOfImages <= this.counter)
             return;
 
         int currentXRotate = Random.Range(-50, 50);
@@ -137,9 +163,9 @@ public class ImageChanger : MonoBehaviour
 
         string stringToPost = this.generateLabels(t_xs, t_ys);
 
-        System.IO.File.WriteAllText("C:/Work/BP/DatasetGenerator/Dataset Generator/txts/" + this.counter + ".txt", stringToPost);
+        System.IO.File.WriteAllText(_txtPath + this.counter + ".txt", stringToPost);
 
-        ScreenCapture.CaptureScreenshot("C:/Work/BP/DatasetGenerator/Dataset Generator/imgs/" + this.counter + ".png");
+        ScreenCapture.CaptureScreenshot(_imgPath + this.counter + ".png");
         
         this.counter++;
 
@@ -152,28 +178,28 @@ public class ImageChanger : MonoBehaviour
             + ((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
             + ((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.') + '\n';
         
-        if (this.counter % 2 == 0)
-        {
-            stringToPost += 3 + " " + ((Mathf.Min(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (1.0f - ((Mathf.Min(t_ys)) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.') + '\n';
+        //if (this.counter % 2 == 0)
+        //{
+        //    stringToPost += 3 + " " + ((Mathf.Min(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (1.0f - ((Mathf.Min(t_ys)) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.') + '\n';
 
-            stringToPost += 3 + " " + ((Mathf.Min(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (1.0f - ((Mathf.Max(t_ys)) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.') + '\n';
+        //    stringToPost += 3 + " " + ((Mathf.Min(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (1.0f - ((Mathf.Max(t_ys)) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.') + '\n';
 
-            stringToPost += 3 + " " + ((Mathf.Max(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (1.0f - ((Mathf.Min(t_ys) - (Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.') + '\n';
+        //    stringToPost += 3 + " " + ((Mathf.Max(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (1.0f - ((Mathf.Min(t_ys) - (Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.') + '\n';
 
-            stringToPost += 3 + " " + ((Mathf.Max(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (1.0f - ((Mathf.Max(t_ys) - (Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
-            + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.');
-        }
+        //    stringToPost += 3 + " " + ((Mathf.Max(t_xs)) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (1.0f - ((Mathf.Max(t_ys) - (Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2) / this.Background.GetComponent<RectTransform>().rect.height)).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_xs) - Mathf.Min(t_xs)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.width).ToString().Replace(',', '.') + " "
+        //    + (((Mathf.Max(t_ys) - Mathf.Min(t_ys)) / 2.5f) / this.Background.GetComponent<RectTransform>().rect.height).ToString().Replace(',', '.');
+        //}
 
         return stringToPost;
     }
